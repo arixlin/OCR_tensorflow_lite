@@ -15,12 +15,12 @@ parser.add_argument('-i', '--images', type=str, required=True,
                     help='Image file or folder path.')
 # parser.add_argument('-t', '--table_path', type=str, required=True, 
 #                     help='The path of table file.')
-
+args = parser.parse_args()
 
 def read_img_and_preprocess(path):
     img = tf.io.read_file(path)
-    img = tf.io.decode_jpeg(img, channels=args.img_channels)
-    img = tf.image.convert_image_dtype(img, tf.float32)
+    img = tf.io.decode_jpeg(img, channels=1)
+    img = tf.image.convert_image_dtype(img, tf.float16)
     img = tf.image.resize(img, (32, 100))
     return img
 
@@ -35,7 +35,7 @@ from tensorflow.lite.python import interpreter as interpreter_wrapper
 import numpy as np
 
 #crnn
-crnn_interpreter = interpreter_wrapper.Interpreter(model_path='converted_model.tflite')
+crnn_interpreter = interpreter_wrapper.Interpreter(model_path='models/crnn_vgg.tflite')
 crnn_interpreter.allocate_tensors()
 crnn_input_details = crnn_interpreter.get_input_details()
 crnn_output_details = crnn_interpreter.get_output_details()
@@ -50,7 +50,7 @@ print(y_pred.shape)
 
 
 #ctc
-ctc_interpreter = interpreter_wrapper.Interpreter(model_path='decoded.tflite')
+ctc_interpreter = interpreter_wrapper.Interpreter(model_path='models/decode.tflite')
 ctc_interpreter.allocate_tensors()
 ctc_input_details = ctc_interpreter.get_input_details()
 ctc_output_details = ctc_interpreter.get_output_details()
