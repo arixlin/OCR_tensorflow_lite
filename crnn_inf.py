@@ -15,8 +15,7 @@ from decoder import Decoder
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--images', type=str, required=True, 
                     help='Image file or folder path.')
-# parser.add_argument('-t', '--table_path', type=str, required=True, 
-#                     help='The path of table file.')
+
 args = parser.parse_args()
 
 def read_img_and_preprocess(path):
@@ -30,8 +29,6 @@ def read_img_and_preprocess(path):
 img = read_img_and_preprocess(args.images)
 imgs = tf.expand_dims(img, 0)
 
-# with open(args.table_path, 'r') as f:
-#     inv_table = [char.strip() for char in f]
 
 from tensorflow.lite.python import interpreter as interpreter_wrapper
 import numpy as np
@@ -53,7 +50,6 @@ import numpy as np
 
 #ctc
 crnn_interpreter = interpreter_wrapper.Interpreter(model_path='models/crnn.tflite')
-crnn_interpreter.allocate_tensors()
 crnn_input_details = crnn_interpreter.get_input_details()
 crnn_output_details = crnn_interpreter.get_output_details()
 crnn_interpreter.resize_tensor_input(crnn_input_details[0]['index'], imgs.shape)
@@ -63,12 +59,10 @@ crnn_interpreter.invoke()
 y_pred = crnn_interpreter.get_tensor(crnn_output_details[0]['index'])
 
 ctc_interpreter = interpreter_wrapper.Interpreter(model_path='models/ctc_decoder_greedy.tflite')
-ctc_interpreter.allocate_tensors()
 ctc_input_details = ctc_interpreter.get_input_details()
 ctc_output_details = ctc_interpreter.get_output_details()
 ctc_interpreter.resize_tensor_input(ctc_input_details[0]['index'], y_pred.shape)
 ctc_interpreter.allocate_tensors()
-
 ctc_interpreter.set_tensor(ctc_input_details[0]['index'], y_pred)
 ctc_interpreter.invoke()
 output = ctc_interpreter.get_tensor(ctc_output_details[0]['index'])
