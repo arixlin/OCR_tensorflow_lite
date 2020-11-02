@@ -22,7 +22,7 @@ def read_img_and_preprocess(path):
     img = tf.io.read_file(path)
     img = tf.io.decode_jpeg(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
-    img = tf.image.resize(img, (32, 100))
+    img = tf.image.resize(img, (32, 120))
     return img
 
 
